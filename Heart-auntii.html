@@ -1,0 +1,28 @@
+<!doctype html>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<body style="margin:0;background:#050002;overflow:hidden">
+<canvas id=c style="display:block"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+let W,H,k;
+function fit(){const d=devicePixelRatio||1;W=innerWidth;H=innerHeight;c.width=W*d;c.height=H*d;c.style.width=W+'px';c.style.height=H+'px';k=Math.min(W,H)/420*d}
+fit();addEventListener('resize',fit);
+const heart=u=>[1.6*Math.pow(Math.sin(u),3),1.3*Math.cos(u)-.5*Math.cos(2*u)-.2*Math.cos(3*u)-.1*Math.cos(4*u)];
+const pts=[];
+for(let i=0;i<2000;i++){const u=Math.random()*2*Math.PI,[hx,hy]=heart(u),rad=Math.sqrt(Math.random());pts.push([hx*rad,hy*rad,1.1*(1-rad)*(Math.random()*2-1)])}
+const col=f=>{f=Math.max(0,Math.min(1,f));return 'rgb('+Math.round(70+185*f)+','+Math.round(30*f)+','+Math.round(10+40*f)+')'};
+let th=0,last=performance.now();
+function loop(now){
+th+=1.4*Math.min((now-last)/1000,.05);last=now;
+x.setTransform(1,0,0,1,0,0);x.fillStyle='#050002';x.fillRect(0,0,c.width,c.height);
+const ct=Math.cos(th),st=Math.sin(th);
+const pr=pts.map(([a,b,z])=>[a*ct+z*st,b,-a*st+z*ct]).sort((m,n)=>m[2]-n[2]);
+for(const [a,b,z] of pr){
+const dp=(z+1.1)/2.2;
+x.fillStyle=col(dp);x.beginPath();
+x.arc(c.width/2+a*100*k,c.height/2-(b*100+33)*k,(2+dp*2.5)/2*k,0,7);x.fill()
+}
+requestAnimationFrame(loop)
+}
+requestAnimationFrame(loop)
+</script>
